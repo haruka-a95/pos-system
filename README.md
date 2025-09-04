@@ -88,10 +88,10 @@ docker-compose exec app npm run dev
 ```
 
 ## 7. Vue.js でのナビゲーション
-[aboutRouter.md]() を参照してください。
+[ルーターについて](https://github.com/haruka-a95/pos-system/blob/main/doc/aboutRouter.md) を参照してください。
 
 ## 8. APIについて
-[]を参照してください。
+[APIについて](https://github.com/haruka-a95/pos-system/blob/main/doc/Api.md)を参照してください。
 
 ## 9. ポイント
 - Vue が画面表示を担うため、routes/web.php へのルートは記載しない
