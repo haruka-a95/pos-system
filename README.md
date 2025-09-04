@@ -40,6 +40,9 @@ php artisan migrate --seed
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
+# 画像表示用シンボリックリンク作成
+php artisan storage:link
+
 # Node.js 依存関係インストール
 npm install
 ## Bootstrap 5 を使用
