@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import { ref, onMounted } from 'vue';
-import ConfirmModal from '../components/ConfirmModal.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import axios from 'axios';
 
 export default {
@@ -54,6 +54,16 @@ export default {
 
         const modalVisible = ref(false);
         const selectedCategory = ref<any>(null);
+
+        // Authorization ヘッダ用トークン
+        const token = localStorage.getItem('token');
+
+        // axios インスタンス作成（認証ヘッダ付き）
+        const api = axios.create({
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+        });
 
         // 全件取得
         const fetchCategories = async () => {
@@ -68,7 +78,7 @@ export default {
             if (form.value.id) { // 編集
                 await axios.put(`/api/categories/${form.value.id}`, { name: form.value.name,});
             } else { // 新規
-                await axios.post('api/categories', { name: form.value.name,});
+                await axios.post('/api/categories', { name: form.value.name,});
             }
             form.value = { id: null, name: ''};
             await fetchCategories();
@@ -87,7 +97,7 @@ export default {
         // 削除
         const deleteCategory = async () => {
             if (!selectedCategory.value) return
-            await axios.delete(`api/categories/${selectedCategory.value.id}`);
+            await axios.delete(`/api/categories/${selectedCategory.value.id}`);
             categories.value = categories.value.filter(c => c.id !== selectedCategory.value.id);
             modalVisible.value = false
             selectedCategory.value = null

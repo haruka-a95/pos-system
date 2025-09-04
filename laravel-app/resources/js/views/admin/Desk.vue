@@ -45,7 +45,7 @@
 
 <script lang="ts">
 import { ref, onMounted } from 'vue';
-import ConfirmModal from '../components/ConfirmModal.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import axios from 'axios';
 
 export default {

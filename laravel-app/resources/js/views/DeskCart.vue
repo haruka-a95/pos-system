@@ -63,7 +63,7 @@ export default {
     // テーブル情報取得
     const fetchDesk = async () => {
         if (!props.deskId) return;
-      const res = await axios.get(`/api/desks/${props.deskId}`);
+      const res = await axios.get(`/desks/${props.deskId}`);
       desk.value = res.data;
     };
 

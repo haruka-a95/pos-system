@@ -1,10 +1,7 @@
 <template>
   <div>
-    <h1>アクセスOK! HOMEへようこそ</h1>
-        <p>ボタンをクリックした回数：{{ counter }}</p>
-        <button class="btn btn-primary" @click="counter += 1">
-            click!
-        </button>
+    <h1>HOMEへようこそ</h1>
+
   </div>
 </template>
 

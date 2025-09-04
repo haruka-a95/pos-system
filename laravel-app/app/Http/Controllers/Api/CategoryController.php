@@ -1,12 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use Illuminate\Routing\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except(['index']); //index以外ログイン必須
+    }
+
     /**
      * Display a listing of the resource.
      */

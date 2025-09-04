@@ -4,6 +4,7 @@
 
     <!-- 商品登録 -->
      <div class="border border-info p-3 rounded mb-4">
+        <h2 class="text-center">{{ form.id ? '編集' : '新規登録' }}</h2>
         <form @submit.prevent="submitProduct">
             <div class="mb-2">
                 <input v-model="form.name" class="form-control" placeholder="商品名" required />
@@ -46,10 +47,10 @@
                 <td>
                     <span :class="[
                         'px-2 py-1 rounded',
-                        categories.find(c => c.id === product.category_id) ? 'bg-secondary text-white' : ''
+                        categories?.find?.(c => c.id === product.category_id) ? 'bg-secondary text-white' : ''
                         ]"
                     >
-                    {{ categories.find(c => c.id === product.category_id)?.name || '未登録' }}
+                    {{ categories?.find?.(c => c.id === product.category_id)?.name || '未登録' }}
                     </span>
                 </td>
                 <td class="d-flex flex-column align-items-center justify-content-center">
@@ -80,7 +81,7 @@
 <script lang="ts">
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import ConfirmModal from '../components/ConfirmModal.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 export default {
   name: 'Product',
@@ -89,112 +90,129 @@ export default {
     const fileErrMsg = ref('');
     const modalVisible = ref(false);
     const selectedProduct = ref<any>(null);
-    const products = ref([]);
-    const categories = ref([]);
+    const products = ref<any[]>([]);
+    const categories = ref<any[]>([]);
     const form = ref({
-        id: null,
-        name: '',
-        price: 0,
-        category_id: '',
-        image: null,
+      id: null,
+      name: '',
+      price: 0,
+      category_id: '',
+      image: null,
     });
 
-    // 商品取得
+    // Authorization ヘッダ用トークン
+    const token = localStorage.getItem('token');
+
+    // axios インスタンス作成（認証ヘッダ付き）
+    const api = axios.create({
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    // 商品一覧取得
     const fetchProducts = async () => {
-        const res = await axios.get('/api/products');
-        products.value = res.data;
+      const res = await axios.get('/api/products');
+      products.value = res.data;
     };
 
-    // カテゴリ取得
+    // カテゴリ一覧取得
     const fetchCategories = async () => {
-        const res = await axios.get('/api/categories');
-        categories.value = res.data;
+      const res = await axios.get('/api/categories');
+      categories.value = res.data;
     };
 
     // 画像選択
     const onFileChange = (event: Event) => {
-        const target = event.target as HTMLInputElement;
-        fileErrMsg.value = '';
-        if (!target.files?.length) return;
+      const target = event.target as HTMLInputElement;
+      fileErrMsg.value = '';
+      if (!target.files?.length) return;
+      const file = target.files[0];
 
-        const file = target.files[0];
+      // サイズ制限 2MB
+      if (file.size / 1024 / 1024 > 2) {
+        fileErrMsg.value = 'ファイルサイズは2MB以下にしてください';
+        target.value = '';
+        return;
+      }
 
-        // ファイルサイズ制限：2MB
-        const maxSizeMB = 2;
-        if (file.size / 1024 / 1024 > maxSizeMB) {
-            fileErrMsg.value = `ファイルサイズは${maxSizeMB}MB 以下にしてください`;
-            target.value = '';
-            return;
-        }
+      // タイプ制限
+      if (!['image/webp','image/jpeg','image/png'].includes(file.type)) {
+        fileErrMsg.value = 'webp, jpeg, png のみアップロード可能';
+        target.value = '';
+        return;
+      }
 
-        // ファイルタイプ制限：webp, jpeg, png
-        const allowedTypes = ['image/webp', 'image/jpeg', 'image/png'];
-        if (!allowedTypes.includes(file.type)) {
-            fileErrMsg.value = 'アップロード可能なファイル形式は webp, jpeg, png のみです。';
-            target.value = '';
-            return;
-        }
-
-        form.value.image = file;
+      form.value.image = file;
     };
 
     // 商品登録/更新
     const submitProduct = async () => {
-        const data = new FormData();
-        data.append('name', form.value.name);
-        data.append('price', form.value.price.toString());
-        data.append('description', form.value.description || '');
-        data.append('category_id', form.value.category_id || '');
+      const data = new FormData();
+      data.append('name', form.value.name);
+      data.append('price', form.value.price.toString());
+      data.append('description', form.value.description || '');
+      data.append('category_id', form.value.category_id || '');
+      if (form.value.image instanceof File) data.append('image', form.value.image);
 
-        if (form.value.image instanceof File) { // 新しい画像をUPした場合のみアップロード
-            data.append('image', form.value.image)
-        };
-
-        // 商品編集
+      try {
         if (form.value.id) {
-            data.append('_method', 'PUT');
-            await axios.post(`/api/products/${form.value.id}`, data);
-        } else {// 新規追加
-            await axios.post('api/products', data);
+          data.append('_method', 'PUT');
+          await api.post(`/api/products/${form.value.id}`, data);
+        } else {
+          await api.post('/api/products', data);
         }
-
-        form.value = { id: null, name: '', price: 0, description: '', category_id: '', image: null};
+        form.value = { id: null, name: '', price: 0, category_id: '', image: null };
         await fetchProducts();
+      } catch (err) {
+        console.error(err);
+      }
     };
 
-    // 商品編集(商品情報をコピー、入力フォームに表示)
+    // 編集
     const editProduct = (product: any) => {
-        form.value = {
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            description: product.description,
-            category_id: product.category_id || '',
-            image: null, // 既存画像はここでは保持しない
-        };
-    }
-
-    const openModal = (product: any) => {
-        selectedProduct.value = product;
-        modalVisible.value = true;
-    }
-
-    // 商品削除
-    const deleteProduct = async (product: any) => {
-        if (!selectedProduct.value) return;
-        await axios.delete(`api/products/${selectedProduct.value.id}`);
-        products.value = products.value.filter(p => p.id !== selectedProduct.value.id);
-
-        modalVisible.value = false;
-        selectedProduct.value = null;
+      form.value = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        category_id: product.category_id || '',
+        image: null
+      };
     };
 
-    onMounted(()=> {
-        fetchProducts();
-        fetchCategories();
+    // 削除
+    const openModal = (product: any) => {
+      selectedProduct.value = product;
+      modalVisible.value = true;
+    };
+
+    const deleteProduct = async () => {
+      if (!selectedProduct.value) return;
+      await api.delete(`/api/products/${selectedProduct.value.id}`);
+      products.value = products.value.filter(p => p.id !== selectedProduct.value.id);
+      modalVisible.value = false;
+      selectedProduct.value = null;
+    };
+
+    onMounted(() => {
+      fetchProducts();
+      fetchCategories();
     });
 
-    return { fileErrMsg, products, categories, modalVisible, form, selectedProduct,onFileChange, submitProduct, editProduct, deleteProduct, openModal }
-  },
+    return {
+      fileErrMsg,
+      products,
+      categories,
+      modalVisible,
+      form,
+      selectedProduct,
+      onFileChange,
+      submitProduct,
+      editProduct,
+      openModal,
+      deleteProduct
+    };
+  }
 };
 </script>

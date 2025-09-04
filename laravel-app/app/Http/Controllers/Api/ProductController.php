@@ -1,17 +1,24 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use Illuminate\Routing\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except(['index']); //index以外ログイン必須
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        Log::info('Product index called');
         return Product::all();
     }
 

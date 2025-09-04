@@ -1,25 +1,39 @@
 <?php
 
-use App\Http\Controllers\Api\DeskController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderItemController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\TodoController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Api\DeskController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\LoginController;
 
-Route::apiResource('todos', TodoController::class);
-// apiResourceを使用することで自動で CRUD の API エンドポイントを作成
-// 例:
-//   一覧取得   GET    /api/todos
-//   新規作成   POST   /api/todos
-//   詳細取得   GET    /api/todos/{id}
-//   更新       PUT    /api/todos/{id}
-//   削除       DELETE /api/todos/{id}
+// ログイン・ログアウト
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout']);
+Route::get('/login-status', [LoginController::class, 'loginStatus']);
 
-Route::apiResource('products', ProductController::class);
-Route::apiResource('categories', CategoryController::class);
-Route::apiResource('desks', DeskController::class);
+// 管理者
+Route::middleware(['auth:sanctum'])->group(function () {
+    // 商品管理
+    Route::post('products', [ProductController::class, 'store']);
+    Route::put('products/{product}', [ProductController::class, 'update']);
+    Route::delete('products/{product}', [ProductController::class, 'destroy']);
+
+    // カテゴリ管理
+    Route::apiResource('categories', CategoryController::class)->except(['index']);
+
+    // テーブル管理
+    Route::apiResource('desks', DeskController::class)->except(['index']);
+});
+
+// 注文関連（ログイン不要）
 Route::apiResource('orders', OrderController::class);
 Route::apiResource('order-items', OrderItemController::class);
 Route::get('orders/{deskId}/items', [OrderController::class, 'items']);
+// テーブル選択
+Route::apiResource('desks', DeskController::class)->only(['index']);
+// 商品取得
+Route::get('products', [ProductController::class, 'index']);
+// カテゴリ取得
+Route::get('categories', [CategoryController::class, 'index']);
