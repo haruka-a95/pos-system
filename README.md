@@ -100,3 +100,8 @@ docker-compose exec app npm run dev
 ## 10. その他
 ### VScodeで追加しておく拡張機能
 - Vue - Official (Vue 3 と TypeScript の公式拡張機能)
+
+## 11. 追加すべき機能
+- 各データ検索
+- 管理者側で注文の承認、承認後はユーザーによる注文の削除をできなくする
+- 帳票関連（売上集計など）
