@@ -11,6 +11,7 @@
             <li class="nav-item">
                 <router-link class="nav-link" to="/todo">Todo</router-link>
             </li>
+<<<<<<< HEAD
             <li class="nav-item">
                 <router-link class="nav-link" to="/product">商品管理</router-link>
             </li>
@@ -23,6 +24,8 @@
             <li class="nav-item">
                 <router-link class="nav-link" to="/desk-list">テーブル選択</router-link>
             </li>
+=======
+>>>>>>> 984c5cb55f60197108e7baf85c60c4001f8da349
         </ul>
     </nav>
 
