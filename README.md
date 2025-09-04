@@ -9,8 +9,8 @@ Dockerを立ち上げておいてください。
 
 ## 1. リポジトリをクローン & 移動
 ```bash
-git clone https://github.com/haruka-a95/Laravel-Vue.git
-cd Laravel-Vue/laravel-app
+git clone https://github.com/haruka-a95/pos-system.git
+cd pos
 ```
 
 ## 2. `.env` のコピー
@@ -70,10 +70,15 @@ docker-compose exec app npm run dev
 ├─ database/            マイグレーション・Seeder・Factory
 ├─ public/              公開ディレクトリ（index.php, 静的ファイル）
 ├─ resources/           
-│   ├─ js/              Vue コンポーネント
+│   ├─ js/
+│   │   ├─ components/   Vue コンポーネント（ConfirmModal.vue など）
+│   │   ├─ stores/       Pinia ストア（auth.ts など）
+│   │   ├─ views/        Vue ページコンポーネント（管理者用ページは admin ディレクトリ内。そのほか Login.vue など）
+│   │   └─ router/       Vue Router 設定
 │   └─ css/             Tailwind CSS / カスタム CSS
 ├─ routes/              
-│   └─ api.php          API ルート
+│   │─ api.php          API ルート
+│   └─ web.php          Web ルート（SPA キャッチなど）
 ├─ storage/             ログ・キャッシュ・セッション
 ├─ package.json         npm 依存・スクリプト
 ├─ vite.config.js       Vite 設定
@@ -83,25 +88,10 @@ docker-compose exec app npm run dev
 ```
 
 ## 7. Vue.js でのナビゲーション
-以下ドキュメントを参照してください。
-[aboutRouter.md](https://github.com/haruka-a95/Laravel-Vue/blob/main/doc/aboutRouter.md)
+[aboutRouter.md]() を参照してください。
 
 ## 8. APIについて
-- `TodoController.php` および `api.php` を参照してください。
-- Vueコンポーネントから`axios`を使ってデータを取得
-
-```javascript
-import axios from 'axios';
-// データ取得
-axios.get('/api/products')
-  .then(res => this.products = res.data)
-  .catch(err => console.error(err));
-```
-- APIルートは`routes/api.php`にまとめる
-```php
-Route::get('/products', [ProductController::class, 'index']);
-```
-- コントローラーに必要な処理を実装する
+[]を参照してください。
 
 ## 9. ポイント
 - Vue が画面表示を担うため、routes/web.php へのルートは記載しない
@@ -110,33 +100,3 @@ Route::get('/products', [ProductController::class, 'index']);
 ## 10. その他
 ### VScodeで追加しておく拡張機能
 - Vue - Official (Vue 3 と TypeScript の公式拡張機能)
-
-### 現在のHOME画面
-Vue.jsでの状態管理
-![screen](https://github.com/haruka-a95/Laravel-Vue/blob/main/doc/image.png)
-
-
-ボタンをクリックするとカウンターが増える仕組み
-
-- Vue インスタンスの data に counter を定義（初期値 0）
-- `<p>` で {{ counter }} として表示
-- `<button>` のクリックで counter += 1 が実行される
-- Vue が counter の変化を検知
-- `<p>` の内容が自動で更新される
-```ts
-<template>
-  <div>
-    <h1>アクセスOK! HOMEへようこそ</h1>
-        <p>ボタンをクリックした回数：{{ counter }}</p>
-        <button class="btn btn-primary" @click="counter += 1">
-            click!
-        </button>
-  </div>
-</template>
-
-<script lang="ts">
-export default {
-  name: 'Home',
-};
-</script>
-```

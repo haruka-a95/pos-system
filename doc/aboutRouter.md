@@ -2,7 +2,9 @@
 (実施済： ルーターのインストール `npm install vue-router@4`)
 
 1. ルーター設定ファイル作成 `resources/js/router/index.ts`
+詳細は実際のファイルでご確認ください。
 ```ts
+// 例
 import { createRouter, createWebHistory } from 'vue-router';
 // 必要なvueコンポーネントをimport
 import Home from '../views/Home.vue';
@@ -18,6 +20,7 @@ export default router;
 ```
 
 2. App.vue にルーターを登録 `resources/js/App.vue`
+詳細は実際のファイルでご確認ください。
 ```ts
 <template>
   <div>
