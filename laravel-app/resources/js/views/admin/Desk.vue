@@ -10,6 +10,13 @@
             </form>
         </div>
 
+        <!-- 検索フォーム -->
+         <div class="mb-4 border p-2 rounded border-dark-subtle">
+            <div class="d-flex space-2 justify-content-center">
+                <input type="text" v-model="keyword" class="form-control" placeholder="テーブル名で検索"/>
+                <button class="btn btn-secondary ms-2" @click="keyword=''">クリア</button>
+            </div>
+         </div>
         <!-- 一覧 -->
         <table class="table table-hover table-bordered">
             <thead>
@@ -21,7 +28,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="desk in desks" :key="desk.id">
+                <tr v-for="desk in filteredDesks" :key="desk.id">
                     <td>{{ desk.id }}</td>
                     <td>{{ desk.name }}</td>
                     <td>{{ desk.max_num }}</td>
@@ -44,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import ConfirmModal from '../../components/ConfirmModal.vue';
 import axios from 'axios';
 
@@ -57,6 +64,8 @@ export default {
 
         const modalVisible = ref(false);
         const selectedDesk = ref<any>(null);
+
+        const keyword = ref('');
 
         // 全件取得
         const fetchDesks = async () => {
@@ -96,11 +105,19 @@ export default {
             selectedDesk.value = null
         };
 
+        // 検索
+        const filteredDesks = computed(() => {
+            if (!keyword.value) return desks.value;
+            return desks.value.filter(desk =>
+                desk.name.includes(keyword.value)
+            );
+        })
+
         onMounted(() => {
             fetchDesks();
         });
 
-        return { desks, form, modalVisible, selectedDesk, submitDesk, editDesk, openModal, deleteDesk}
+        return { desks, form, modalVisible, selectedDesk, submitDesk, editDesk, openModal, deleteDesk, keyword, filteredDesks}
     },
 };
 </script>

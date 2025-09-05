@@ -27,13 +27,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('desks', DeskController::class)->except(['index']);
 });
 
-// 注文関連（ログイン不要）
-Route::apiResource('orders', OrderController::class);
-Route::apiResource('order-items', OrderItemController::class);
-Route::get('orders/{deskId}/items', [OrderController::class, 'items']);
-// テーブル選択
-Route::apiResource('desks', DeskController::class)->only(['index']);
 // 商品取得
 Route::get('products', [ProductController::class, 'index']);
 // カテゴリ取得
 Route::get('categories', [CategoryController::class, 'index']);
+// テーブル取得
+Route::apiResource('desks', DeskController::class)->only(['index']);
+
+// 注文関連（ログイン不要）
+Route::apiResource('orders', OrderController::class);
+Route::apiResource('order-items', OrderItemController::class);
+Route::get('orders/{deskId}/items', [OrderController::class, 'items']);
+
+// 検索
+Route::get('products/search', [ProductController::class, 'search']);
