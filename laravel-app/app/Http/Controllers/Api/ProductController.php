@@ -5,21 +5,28 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Routing\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['index']); //index以外ログイン必須
+        $this->middleware('auth')->except(['index', 'search']); //index と search 以外ログイン必須
     }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        Log::info('Product index called');
-        return Product::all();
+        return Product::all()->map(function($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => $product->price,
+                'category_id' => $product->category_id,
+                'image_url' => $product->image_url,
+            ];
+        });
     }
 
     /**
@@ -78,7 +85,14 @@ class ProductController extends Controller
 
         $product->update($validated);
 
-        return $product;
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'price' => $product->price,
+            'category_id' => $product->category_id,
+            'image_url' => $product->image_url,
+        ];
     }
 
     /**
@@ -88,5 +102,31 @@ class ProductController extends Controller
     {
         $product->delete();
         return response()->noContent();
+    }
+
+    public function search(Request $request)
+    {
+        $query = Product::query();
+
+        if ($request->filled('name')) {
+            $query->where('name', 'like', "%{$request->name}%");
+        }
+
+        if ($request->filled('category_id')) {
+        $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        $perPage = $request->get('per_page', 10);
+        $products = $query->paginate($perPage); // ページネーション対応
+
+        return response()->json($products);
     }
 }
