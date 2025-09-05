@@ -35,6 +35,9 @@ php artisan key:generate
 
 # マイグレーション作成
 php artisan migrate --seed
+## 管理者用アカウント（seederで作成）
+## メールアドレス：admin@example.com
+## パスワード：admin123
 
 # storage 権限設定
 chown -R www-data:www-data storage bootstrap/cache
